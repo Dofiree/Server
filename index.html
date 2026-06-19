@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная | Dofire SMP</title>
+    <style>
+        :root {
+            --bg-color: #111216;
+            --card-bg: #1e2026;
+            --card-hover: #252830;
+            --text-main: #f1f2f4;
+            --text-muted: #9aa0a6;
+            --accent-color: #30b27b;
+            --tg-color: #229ED9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .server-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, #15171c 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .server-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
+        }
+
+        #server-status-block {
+            margin: 15px 0 25px 0;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .server-connections {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            border: none;
+        }
+
+        .btn-tg { background-color: var(--tg-color); color: #ffffff; }
+        .btn-tg:hover { background-color: #1e8ec4; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3); }
+
+        .btn-ip { background-color: var(--card-hover); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-ip:hover { border-color: var(--accent-color); background-color: #2b2e38; }
+        .btn-ip.copied { background-color: rgba(48, 178, 123, 0.15); border-color: var(--accent-color); color: var(--accent-color); }
+
+        .tabs-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: 600; padding: 8px 16px; cursor: pointer; transition: color 0.2s; }
+        .tab-btn.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
+
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; }
+
+        .mod-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .mod-card { background-color: var(--card-bg); border-radius: 8px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.05); transition: transform 0.2s ease, border-color 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .mod-card:hover { transform: translateY(-2px); background-color: var(--card-hover); border-color: var(--accent-color); }
+        .mod-name { color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-bottom: 8px; display: inline-block; transition: color 0.2s ease; }
+        .mod-card:hover .mod-name { color: var(--accent-color); }
+        .mod-meta { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        .mod-version { background: rgba(255, 255, 255, 0.08); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.8rem; color: #e2e8f0; }
+        .mod-author { display: block; margin-top: 4px; font-style: italic; }
+
+        .info-block { background-color: var(--card-bg); border-radius: 8px; padding: 24px; border: 1px solid rgba(255, 255, 255, 0.05); line-height: 1.6; }
+        .info-block h3 { margin-top: 0; color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="server-header">
+        <h1 class="server-title">🪐 Dofire SMP</h1>
+        <p style="color: var(--text-muted); margin: 0;">Классический выживательный server с лучшими техническими и визуальными модификациями</p>
+        
+        <div id="server-status-block">
+            <span id="status-indicator" style="width: 10px; height: 10px; background-color: #718096; border-radius: 50%; display: inline-block;"></span>
+            <span id="status-text" style="color: var(--text-muted);">Проверка статуса...</span>
+        </div>
+        
+        <div class="server-connections">
+            <a href="https://t.me/dofirp" target="_blank" class="btn btn-tg">✈️ Чат в Telegram</a>
+            <button class="btn btn-ip" onclick="copyIP()">
+                <span>IP: dofireserv.mcmod.ru</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'mods')">🔌 Модификации</button>
+        <button class="tab-btn" onclick="switchTab(event, 'about')">📖 О сервере</button>
+    </div>
+
+    <div id="mods" class="tab-content active" style="opacity: 1;">
+        <ul class="mod-grid">
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/zV5r3pPn" target="_blank">3d-Skin-Layers</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.11.2</span>
+                    <span class="mod-author">by tr7zw</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/EsAfCjCV" target="_blank">AppleSkin</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.0.10+mc26.2</span>
+                    <span class="mod-author">by squeek502</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/PFwYNrHb" target="_blank">Armor Poser</a>
+                <div class="mod-meta">
+                    <span class="mod-version">15.0.0</span>
+                    <span class="mod-author">by Mrbysco, ShyNieke</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/28G1xpgF" target="_blank">Atmosfera</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.7.1+mc26.2</span>
+                    <span class="mod-author">by Haven King</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/n6PXGAoM" target="_blank">Better Statistics Screen</a>
+                <div class="mod-meta">
+                    <span class="mod-version">5.4.0+neoforge-26.2</span>
+                    <span class="mod-author">by TheCSDev</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/TQTTVgYE" target="_blank">Carpet Mod</a>
+                <div class="mod-meta">
+                    <span class="mod-version">26.2+v260616</span>
+                    <span class="mod-author">by gnembon, ...</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/Wb5oqrBJ" target="_blank">Chat Heads</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.2.4</span>
+                    <span class="mod-author">by dzwdz, Fourmisain</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/pbnlOdwp" target="_blank">Chat Tools</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.4.3</span>
+                    <span class="mod-author">by 70CentsApple</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/9s6osm5g" target="_blank">Cloth Config v26.2</a>
+                <div class="mod-meta">
+                    <span class="mod-version">26.2.155</span>
+                    <span class="mod-author">by shedaniel</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/o5fhgLeQ" target="_blank">Cursors Extended</a>
+                <div class="mod-meta">
+                    <span class="mod-version">4.1.7+26.2</span>
+                    <span class="mod-author">by fishstiz</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/AK1n0IqM" target="_blank">Dynamic Lights</a>
+                <div class="mod-meta">
+                    <span class="mod-version">5.3</span>
+                    <span class="mod-author">by o-Peepo</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/4I1XuqiY" target="_blank">Entity Model Features</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.2.5</span>
+                    <span class="mod-author">by Traben</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/BVzZfTc1" target="_blank">Entity Texture Features</a>
+                <div class="mod-meta">
+                    <span class="mod-version">7.1.1</span>
+                    <span class="mod-author">by Traben</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/P7dR8mSH" target="_blank">Fabric API</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.152.2+26.2</span>
+                    <span class="mod-author">by FabricMC</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/Ha28R6CL" target="_blank">Fabric Language Kotlin</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.13.12+kotlin.2.4.0</span>
+                    <span class="mod-author">by FabricMC</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/bcOsQHnC" target="_blank">Female Gender Mod</a>
+                <div class="mod-meta">
+                    <span class="mod-version">5.0.0-Beta.4+26.2</span>
+                    <span class="mod-author">by WildfireRomeo, celeste, pupnewfster</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/ohNO6lps" target="_blank">Forge Config API Port</a>
+                <div class="mod-meta">
+                    <span class="mod-version">26.2.0</span>
+                    <span class="mod-author">by Fuzs</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/hYykXjDp" target="_blank">Fzzy Config</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.7.6+26.2</span>
+                    <span class="mod-author">by fzzyhmstrs</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://www.curseforge.com/projects/686911" target="_blank">ImmediatelyFast</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.16.0+26.2</span>
+                    <span class="mod-author">by RK_01</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/YL57xq9U" target="_blank">Iris</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.11.1+mc26.2</span>
+                    <span class="mod-author">by coderbot, IMS212, Justsnoopy30, FoundationGames</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/bEpr0Arc" target="_blank">Litematica</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.28.0</span>
+                    <span class="mod-author">by masa</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/gvQqBUqZ" target="_blank">Lithium</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.25.0+mc26.2</span>
+                    <span class="mod-author">by JellySquid, 2No2Name</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/SNVQ2c0g" target="_blank">M.R.U</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.0.28+lts+26.1</span>
+                    <span class="mod-author">by IMB11 (mineblock11)</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/GcWjdA9I" target="_blank">MaLiLib</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.29.0</span>
+                    <span class="mod-author">by masa</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/irAcvnQl" target="_blank">Map.png</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.0.3+26.2</span>
+                    <span class="mod-author">by Galiano, Kroojel</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/mOgUt4GM" target="_blank">Mod Menu</a>
+                <div class="mod-meta">
+                    <span class="mod-version">20.0.0-beta.2</span>
+                    <span class="mod-author">by Prospector, haykam821, gniftygnome, TerraformersMC</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/aC3cM3Vq" target="_blank">Mouse Tweaks</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.31</span>
+                    <span class="mod-author">by Ivan Molodetskikh (YaLTeR)</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/A4YQgwzz" target="_blank">MusicNotification</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.1.0</span>
+                    <span class="mod-author">by KosmoMoustache</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/eXts2L7r" target="_blank">Placeholder API</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.1.0-beta.1+26.2</span>
+                    <span class="mod-author">by Patbox</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/1bZhdhsH" target="_blank">Plasmo Voice</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.1.10</span>
+                    <span class="mod-author">by Plasmo</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/hWJmdZnO" target="_blank">Presence Footsteps Lite</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.14.0</span>
+                    <span class="mod-author">by Hurricaaane (Ha3), Sollace, AmirAli Mollaei</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/8aoMKplv" target="_blank">Punchy</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.5.6</span>
+                    <span class="mod-author">by Punchy</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/RLzHAoZe" target="_blank">Resourcify</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.8.4</span>
+                    <span class="mod-author">by DeDiamondPro</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/aru7gAyl" target="_blank">Screencopy</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.4.2-fabric</span>
+                    <span class="mod-author">by ImUrX</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/fuuu3xnx" target="_blank">Searchables</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.0.1</span>
+                    <span class="mod-author">by Jaredlll08</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/2M01OLQq" target="_blank">Shulker Box Tooltip</a>
+                <div class="mod-meta">
+                    <span class="mod-version">5.3.1+26.2</span>
+                    <span class="mod-author">by MisterPeModder</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/3s19I5jr" target="_blank">SkinShuffle</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.12.0</span>
+                    <span class="mod-author">by IMB11 (mineblock11), enjarai</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/DWuwk8aA" target="_blank">Skyboxify</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.0</span>
+                    <span class="mod-author">by lowercasebtw, FlashyReese, AMereBagatelle</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/AANobbMI" target="_blank">Sodium</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.9.0+mc26.2</span>
+                    <span class="mod-author">by JellySquid (jellysquid3)</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/qyVF9oeo" target="_blank">Sound Physics Remastered</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.5.1+26.2</span>
+                    <span class="mod-author">by Sonic Ether, vlad2305m, Max Henkel, Saint</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/ZouiUX7t" target="_blank">Sounds</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.5.0+edge</span>
+                    <span class="mod-author">by IMB11, cassiancc</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/x02cBj9Y" target="_blank">Status Effect Bars</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.0.12</span>
+                    <span class="mod-author">by A5b84</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/doqSKB0e" target="_blank">Styled Chat</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.13.0+26.2</span>
+                    <span class="mod-author">by Patbox</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/4q8UOK1d" target="_blank">Subtle Effects</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.14.3</span>
+                    <span class="mod-author">by MincraftEinstein</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/NKvLVQMc" target="_blank">Symbol Chat</a>
+                <div class="mod-meta">
+                    <span class="mod-version">26.2-1.4.2</span>
+                    <span class="mod-author">by replaceitem</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/Eldc1g37" target="_blank">TCDCommons API</a>
+                <div class="mod-meta">
+                    <span class="mod-version">5.4.0+neoforge-26.2</span>
+                    <span class="mod-author">by TheCSDev</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/1bokaNcj" target="_blank">Xaero's Minimap</a>
+                <div class="mod-meta">
+                    <span class="mod-version">26.1.2</span>
+                    <span class="mod-author">by xaero96</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/1eAoo2KR" target="_blank">YetAnotherConfigLib</a>
+                <div class="mod-meta">
+                    <span class="mod-version">3.9.4+26.2-fabric</span>
+                    <span class="mod-author">by isXander</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/w7ThoJFB" target="_blank">Zoomify</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.16.1+26.2</span>
+                    <span class="mod-author">by isXander</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/g2HFPeCl" target="_blank">pv-addon-groups</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.1.1</span>
+                    <span class="mod-author">by KPidS</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/Kx9d4acU" target="_blank">pv-addon-lavaplayer-lib</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.2.1</span>
+                    <span class="mod-author">by Apehum</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/K1y8brkJ" target="_blank">pv-addon-soundphysics</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.1.2</span>
+                    <span class="mod-author">by Apehum</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/OrjwT7hp" target="_blank">pv-addon-voice-messages</a>
+                <div class="mod-meta">
+                    <span class="mod-version">1.0.0-beta.4</span>
+                    <span class="mod-author">by Apehum</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/wF189hn9" target="_blank">uku's Armor HUD</a>
+                <div class="mod-meta">
+                    <span class="mod-version">0.12.0+mc26.2</span>
+                    <span class="mod-author">by BerdinskiyBear, uku</span>
+                </div>
+            </li>
+            <li class="mod-card">
+                <a class="mod-name" href="https://modrinth.com/mod/Y8uFrUil" target="_blank">ukulib</a>
+                <div class="mod-meta">
+                    <span class="mod-version">2.1.1+26.2</span>
+                    <span class="mod-author">by uku</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div id="about" class="tab-content">
+        <div class="info-block">
+            <h3>Добро пожаловать на сервер!</h3>
+            <p>Это приватный проект для комфортной игры с друзьями. Мы используем оптимизированную сборку модов на базе Fabric, которая улучшает визуал, добавляет голосовой чат прямо в игре (Plasmo Voice) и исправляет множество мелких недочетов оригинальной игры.</p>
+            <p>Чтобы подключиться к нашему живому чату игроков, обязательно переходи по ссылке в Telegram выше!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(e, tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => { 
+            t.classList.remove('active'); 
+            t.style.opacity = "0"; 
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        const activeTab = document.getElementById(tabId);
+        activeTab.classList.add('active');
+        setTimeout(() => { activeTab.style.opacity = "1"; }, 10);
+        e.currentTarget.classList.add('active');
+    }
+
+    function copyIP() {
+        const ipText = "dofireserv.mcmod.ru";
+        const btnNode = document.querySelector('.btn-ip');
+        const btnSpan = btnNode.querySelector('span');
+        navigator.clipboard.writeText(ipText).then(() => {
+            btnSpan.innerText = "✨ IP Скопирован!";
+            btnNode.classList.add('copied');
+            setTimeout(() => { 
+                btnSpan.innerText = "IP: dofireserv.mcmod.ru"; 
+                btnNode.classList.remove('copied'); 
+            }, 2000);
+        });
+    }
+
+    function updateServerStatus() {
+        fetch('https://api.mcsrvstat.us/3/dofireserv.mcmod.ru')
+            .then(res => res.json())
+            .then(data => {
+                const ind = document.getElementById('status-indicator');
+                const txt = document.getElementById('status-text');
+                if (data && data.online) {
+                    ind.style.backgroundColor = "var(--accent-color)";
+                    ind.style.boxShadow = "0 0 8px var(--accent-color)";
+                    const onlinePlayers = data.players ? data.players.online : 0;
+                    const maxPlayers = data.players ? data.players.max : 20;
+                    txt.innerText = `В сети • Игроков: ${onlinePlayers}/${maxPlayers}`;
+                    txt.style.color = "#ffffff";
+                } else {
+                    ind.style.backgroundColor = "#ef4444";
+                    ind.style.boxShadow = "0 0 8px #ef4444";
+                    txt.innerText = "Сервер выключен";
+                    txt.style.color = "#ef4444";
+                }
+            }).catch(() => {
+                document.getElementById('status-text').innerText = "Сервер выключен";
+            });
+    }
+    
+    updateServerStatus();
+    setInterval(updateServerStatus, 60000);
+</script>
+</body>
+</html>
